@@ -252,7 +252,7 @@ function isValidInput(task, minutes) {
         return false;
     }
     if (minutes > 5999) {
-        document.getElementById('alertText').textContent = "Duration must be less than 5999 minutes.";
+        document.getElementById('alertText').textContent = "Duration must be less than 6000 minutes.";
         $("#alert").addClass('show').css('color', 'orangered').fadeTo(2000, 500).slideUp(500);
         return false;
     }
