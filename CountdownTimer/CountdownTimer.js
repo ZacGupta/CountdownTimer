@@ -259,14 +259,13 @@ function isValidInput(task, minutes) {
     return true;
 }
 
-/* Adds task input from text/number forms and adds <li> items accordingly.
+/* Accepts task input from text/number forms and CSV Files, then adds <li> elements accordingly.
  Increments the global time variables every time a new task is added,
  and calls setTimerText() to increment the timer on the UI.
  This function should only be called inside the onclick function for
  the add task button and from within parseCSV() */
 
 function addTask(task, minutes) {
-
     minutes = removeLeadingZeros(minutes);
 
     if (isValidInput(task, minutes)) {
@@ -350,6 +349,9 @@ function addTask(task, minutes) {
         if (document.getElementsByTagName('li').length === 1) {
             setTimerText("#taskCountdown", taskSecondsRemaining);
         }
+        return true;
+    } else {
+        return false;
     }
 }
 
@@ -357,17 +359,20 @@ function addTask(task, minutes) {
 /* Imports the CSV file provided by the user, which is then passed onto parseCSV() */
 
 function importCSV() {
+    let successful = false;
     const reader = new FileReader();
     const input = document.querySelector('input[type="file"]');
     reader.readAsText(input.files[0]);
     reader.onload = function () {
-        parseCSV(reader.result);
+        successful = parseCSV(reader.result);
     }
     document.getElementById("importCSV").value = "";
 
     // Show importCSV success notification
-    document.getElementById('alertText').textContent = "Imported CSV file.";
-    $("#alert").addClass('show').css('color', '#d9d9d9').fadeTo(2000, 500).slideUp(500);
+    if (successful) {
+        document.getElementById('alertText').textContent = "Imported CSV file.";
+        $("#alert").addClass('show').css('color', '#d9d9d9').fadeTo(2000, 500).slideUp(500);
+    }
 }
 
 /* Parses the imported CSV file passed on by importCSV(), calls addTask(task, minutes) for each task
@@ -375,16 +380,34 @@ function importCSV() {
 
 function parseCSV(data) {
     //Split the string, store in array, pop the last element (empty string), and splice the first two elements (headers).
+    let successful = false;
     const dataArray = data.replace(/\n/g, ",").split(",");
-    dataArray.pop();
+    let lastIndex = dataArray.length - 1;
+
+    //Remove trailing white space.
+    while (IsNullOrWhiteSpace(dataArray[lastIndex])) {
+        dataArray.pop();
+        lastIndex--;
+    }
+
+    //Remove column headers.
     dataArray.splice(0, 2);
 
     //Store the data in arrays and add to task list.
-    $.each(dataArray, function (i) {
-        if (i % 2 === 0) {
-            addTask(dataArray[i], dataArray[i + 1]);
-        }
-    });
+    $.each(dataArray,
+        function (i) {
+            if (i % 2 === 0) {
+                successful = addTask(dataArray[i], dataArray[i + 1]);
+                if (!successful) {
+                    clear();
+                    // Show invalid CSV error messsage
+                    document.getElementById('alertText').textContent = "Invalid CSV File!";
+                    $("#alert").addClass('show').css('color', 'orangered').fadeTo(2000, 500).slideUp(500);
+                    return false;
+                }
+            }
+        });
+    return true;
 }
 
 /* exportCSV() gathers the current CSV cache and downloads a CSV file with the appropriate data. */
@@ -408,7 +431,7 @@ function exportCSV() {
         const hiddenElement = document.createElement('a');
         hiddenElement.href = 'data:text/csv;charset=utf-8' + encodeURI(csv);
         hiddenElement.target = "_blank";
-        hiddenElement.download = 'data.csv';
+        hiddenElement.download = 'timeConfiguration.csv';
         hiddenElement.click();
 
         //Show exportCSV success notification.
@@ -460,12 +483,17 @@ function resetTimerText(id) {
     $(id).text("00:00:00");
 }
 
+/* Returns true if the string is null or white space*/
+
 function IsNullOrWhiteSpace(value) {
     if (value == null)
         return true;
     return value.replace(/\s/g, '').length === 0;
 }
 
+/* Trims a string and removes any leading zeros.*/
+
 function removeLeadingZeros(value) {
+    value = value.trim();
     return value.replace(/^0+/, '');
 }

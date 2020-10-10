@@ -1,10 +1,10 @@
-taskName,minutes
-Task 1,0.25
-Task 2,0.5
-Task 3,1
-Task 4,2
-Task 5,5
-Task 6,10
-Task 7,30
-Task 8,60
-Task 9,120
+taskName, minutes
+Task 1, 0.25
+Task 2, 0.5
+Task 3, 1
+Task 4, 2
+Task 5, 5
+Task 6, 10
+Task 7, 30
+Task 8, 60
+Task 9, 120
