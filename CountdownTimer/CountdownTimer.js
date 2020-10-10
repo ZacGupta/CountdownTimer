@@ -234,22 +234,22 @@ function isValidInput(task, minutes) {
     //Input Validation with error notifications.
     if (IsNullOrWhiteSpace(task)) {
         document.getElementById('alertText').textContent = "Task name cannot be empty.";
-        $("#alert").addClass('show').css('color', 'orangered').fadeTo(2000, 500).slideUp(500);
+        $("#alert").css('color', 'orangered').fadeTo(2000, 500).slideUp(500);
         return false;
     }
     if (task.length > 25) {
         document.getElementById('alertText').textContent = "Task name must not exceed 25 characters.";
-        $("#alert").addClass('show').css('color', 'orangered').fadeTo(2000, 500).slideUp(500);
+        $("#alert").css('color', 'orangered').fadeTo(2000, 500).slideUp(500);
         return false;
     }
     if (minutes < 0 || IsNullOrWhiteSpace(minutes) || !Number.isInteger((minutes * 60))) {
         document.getElementById('alertText').textContent = "Duration must be a valid number greater than 0.";
-        $("#alert").addClass('show').css('color', 'orangered').fadeTo(2000, 500).slideUp(500);
+        $("#alert").css('color', 'orangered').fadeTo(2000, 500).slideUp(500);
         return false;
     }
     if (minutes > 5999) {
         document.getElementById('alertText').textContent = "Duration must be less than 6000 minutes.";
-        $("#alert").addClass('show').css('color', 'orangered').fadeTo(2000, 500).slideUp(500);
+        $("#alert").css('color', 'orangered').fadeTo(2000, 500).slideUp(500);
         return false;
     }
     return true;
@@ -355,20 +355,13 @@ function addTask(task, minutes) {
 /* Imports the CSV file provided by the user, which is then passed onto parseCSV() */
 
 function importCSV() {
-    let successful = false;
     const reader = new FileReader();
     const input = document.querySelector('input[type="file"]');
     reader.readAsText(input.files[0]);
     reader.onload = function () {
-        successful = parseCSV(reader.result);
+        parseCSV(reader.result);
     }
     document.getElementById("importCSV").value = "";
-
-    // Show importCSV success notification
-    if (successful) {
-        document.getElementById('alertText').textContent = "Imported CSV file.";
-        $("#alert").addClass('show').css('color', '#d9d9d9').fadeTo(2000, 500).slideUp(500);
-    }
 }
 
 /* Parses the imported CSV file passed on by importCSV(), calls addTask(task, minutes) for each task
@@ -376,7 +369,6 @@ function importCSV() {
 
 function parseCSV(data) {
     //Split the string, store in array, pop the last element (empty string), and splice the first two elements (headers).
-    let successful = false;
     const dataArray = data.replace(/\n/g, ",").split(",");
     let lastIndex = dataArray.length - 1;
 
@@ -389,21 +381,31 @@ function parseCSV(data) {
     //Remove column headers.
     dataArray.splice(0, 2);
 
-    //Store the data in arrays and add to task list.
-    $.each(dataArray,
-        function (i) {
-            if (i % 2 === 0) {
-                successful = addTask(dataArray[i], dataArray[i + 1]);
-                if (!successful) {
-                    clear();
-                    // Show invalid CSV error messsage
-                    document.getElementById('alertText').textContent = "Invalid CSV File!";
-                    $("#alert").addClass('show').css('color', 'orangered').fadeTo(2000, 500).slideUp(500);
-                    return false;
-                }
+    //Add each task task list.
+    for (let i = 0; i < dataArray.length; i++) {
+        if (i % 2 === 0) {
+            let successful = false;
+            if (dataArray[i] == undefined || dataArray[i + 1] == undefined) {
+                clear();
+                // Show invalid CSV error messsage
+                document.getElementById('alertText').textContent = "Invalid CSV File!";
+                $("#alert").css('color', 'orangered').fadeTo(2000, 500).slideUp(500);
+                return;
             }
-        });
-    return true;
+            successful = addTask(dataArray[i], dataArray[i + 1]);
+            if (!successful) {
+                clear();
+                // Show invalid CSV error messsage
+                document.getElementById('alertText').textContent = "Invalid CSV File!";
+                $("#alert").css('color', 'orangered').fadeTo(2000, 500).slideUp(500);
+                return;
+            }
+        }
+        i++;
+    }
+    // Show importCSV success notification
+    document.getElementById('alertText').textContent = "Imported CSV file.";
+    $("#alert").css('color', '#d9d9d9').fadeTo(2000, 500).slideUp(500);
 }
 
 /* exportCSV() gathers the current CSV cache and downloads a CSV file with the appropriate data. */
@@ -413,7 +415,7 @@ function exportCSV() {
     if (exportInfo.length === 0) {
         //show empty CSV cache error.
         document.getElementById('alertText').textContent = "Nothing to export!";
-        $("#alert").addClass('show').css('color', 'orangered').fadeTo(2000, 500).slideUp(500);
+        $("#alert").css('color', 'orangered').fadeTo(2000, 500).slideUp(500);
     } else {
         // csv string to build upon, starts with title
         let csv = "placeholder,taskName,minutes\n";
@@ -432,7 +434,7 @@ function exportCSV() {
 
         //Show exportCSV success notification.
         document.getElementById('alertText').textContent = "Exported CSV file.";
-        $("#alert").addClass('show').css('color', '#d9d9d9').fadeTo(2000, 500).slideUp(500);
+        $("#alert").css('color', '#d9d9d9').fadeTo(2000, 500).slideUp(500);
     }
 }
 
