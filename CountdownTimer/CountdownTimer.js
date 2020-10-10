@@ -12,7 +12,6 @@ var taskSecondsRemaining = 0;
 var taskTracker = 0;
 
 var exportInfo = [];
-var backupArray = [];
 
 var paused = false;
 var started = false;
@@ -104,8 +103,8 @@ function timer() {
         currentTask.setAttribute('active', 'false');
         currentTask.setAttribute('style', 'background-color: #1a1a1a !important; color: #a6a6a6 !important');
 
+        //Update task status icon.
         const icon = currentTask.querySelector('div').querySelector('.icon').querySelector('.fas');
-
         $(icon).removeClass();
         $(icon).addClass('fas fa-check').css('color', 'cyan');
         taskCompletionAudio.currentTime = 0;
@@ -116,11 +115,10 @@ function timer() {
 
         //Sets the task timer to the next task (if there is one)
         if (typeof (nextTask) != "undefined") {
+            //Update task status icon and background colour.
             const nextIcon = nextTask.querySelector('div').querySelector('.icon').querySelector('.fas');
-
             $(nextIcon).removeClass();
             $(nextIcon).addClass('fas fa-play').css('color', 'violet');
-
             nextTask.setAttribute('style', 'background-color:#404040 !important');
 
             taskSeconds = nextTask.getAttribute('minutes') * 60;
@@ -154,9 +152,9 @@ function pause() {
     document.getElementById("start").classList.remove('pressed');
     document.getElementById("pause").classList.add('pressed');
 
+    //Update task status icon.
     const currentTask = document.getElementsByTagName('li')[taskTracker];
     const icon = currentTask.children[0].querySelector('.icon').querySelector('.fas');
-
     $(icon).removeClass();
     $(icon).addClass('fas fa-pause').css('color', 'violet');
 }
@@ -196,11 +194,10 @@ function stop() {
             if (taskList[i].getAttribute('active') === 'true') {
                 taskList[i].setAttribute('active', 'false');
             }
+            //Update task status icons and background colour.
             const icon = taskList[i].querySelector('div').querySelector('.icon').querySelector('.fas');
-
             $(icon).removeClass();
             $(icon).addClass('fas fa-stop').css('color', 'orangered');
-
             taskList[i].setAttribute('style', 'background-color: #262626 !important; color: #d9d9d9 !important');
         });
         setTimerText("#totalCountdown", globalSecondsRemaining);
@@ -217,7 +214,6 @@ function clear() {
     globalSeconds = 0;
     globalSecondsRemaining = 0;
     exportInfo = [];
-    backupArray = [];
 
     $('#timerTaskList').empty();
     $('#taskListHeading').empty().css('display', 'none');
